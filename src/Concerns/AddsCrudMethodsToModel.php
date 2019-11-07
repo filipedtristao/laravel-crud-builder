@@ -58,6 +58,10 @@ Trait AddsCrudMethodsToModel
 
     protected function syncLocalRelations()
     {
+        if (!$this->allowedRelations){
+            return;
+        }
+
         $this
             ->allowedRelations
             ->filter(function (CrudRelation $crudRelation) {
@@ -81,6 +85,10 @@ Trait AddsCrudMethodsToModel
 
     protected function syncRelatedRelations()
     {
+        if (!$this->allowedRelations){
+            return;
+        }
+
         $this
             ->allowedRelations
             ->filter(function (CrudRelation $crudRelation) {
