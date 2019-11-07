@@ -28,7 +28,7 @@ trait AddsAttributesToModel
             });
 
         $this->attributeTransformers = collect($attributes)
-            ->filter(function($attribute) {
+            ->filter(function ($attribute) {
                 return is_callable($attribute);
             });
 
@@ -54,7 +54,13 @@ trait AddsAttributesToModel
 
     protected function getAttributesFromRequest()
     {
-        return collect($this->request->input('data.attributes', []));
+        $attributes = collect($this->request->input('data.attributes', []));
+
+        if ($this->ignoreAttributes instanceof Collection) {
+            $attributes = $attributes->except($this->ignoreAttributes);
+        }
+
+        return $attributes;
     }
 
     protected function addRequestedAttributesToModel()
@@ -73,7 +79,7 @@ trait AddsAttributesToModel
 
     protected function ensureAllAttributesExist()
     {
-        $requestedAttributes = collect($this->request->input('data.attributes'))
+        $requestedAttributes = $this->getAttributesFromRequest()
             ->keys()
             ->unique();
 
