@@ -26,7 +26,7 @@ abstract class TestCase extends Orchestra
             $table->increments('id');
             $table->timestamps();
             $table->string('name');
-            $table->integer('age');
+            $table->integer('age')->nullable();
             $table->integer('band_id')->nullable();
             $table->boolean('is_visible')->default(true);
         });
