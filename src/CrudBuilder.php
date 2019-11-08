@@ -6,17 +6,21 @@ use CrudBuilder\Concerns\AddsAttributesToModel;
 use CrudBuilder\Concerns\AddsCrudMethodsToModel;
 use CrudBuilder\Concerns\AddsDefaultAttributesToModel;
 use CrudBuilder\Concerns\AddsIgnoreAttributesToModel;
+use CrudBuilder\Concerns\AddsIgnoreRelationsToModel;
 use CrudBuilder\Concerns\AddsRelationsToModel;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
-class CrudBuilder {
+class CrudBuilder
+{
 
     use AddsAttributesToModel,
         AddsDefaultAttributesToModel,
         AddsIgnoreAttributesToModel,
         AddsRelationsToModel,
-        AddsCrudMethodsToModel;
+        AddsCrudMethodsToModel,
+        AddsIgnoreRelationsToModel;
 
     protected $request;
     protected $builder;
@@ -38,7 +42,7 @@ class CrudBuilder {
         return new self($builder, $request);
     }
 
-    public function getModel()
+    public function getModel(): Model
     {
         return $this->model;
     }

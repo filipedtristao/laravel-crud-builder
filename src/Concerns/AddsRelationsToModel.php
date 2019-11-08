@@ -37,6 +37,12 @@ Trait AddsRelationsToModel
             ->keys()
             ->unique();
 
+        if ($this->ignoreRelations){
+            $requestedRelations = $requestedRelations->filter(function($requestedRelation) {
+                return !in_array($requestedRelation, $this->ignoreRelations->toArray());
+            });
+        }
+
         $unknownRelations = $requestedRelations->diff($this->allowedRelations->keys());
 
         if ($unknownRelations->isNotEmpty()) {
