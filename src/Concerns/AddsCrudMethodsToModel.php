@@ -17,11 +17,10 @@ Trait AddsCrudMethodsToModel
         $id = $this->getRequestId();
 
         if ($id) {
-            $this->model->id = $id;
+            return $this->update();
         }
 
-        $this->saveModelAndRelations();
-        return $this->model;
+        return $this->create();
     }
 
     public function create(): Model
@@ -35,7 +34,10 @@ Trait AddsCrudMethodsToModel
         $id = $this->getRequestId();
 
         if ($id) {
-            $this->model->id = $id;
+            $modelAttributes = $this->model->getAttributes();
+            $this->model = $this->model->query()->find($id);
+            $this->model->fill($modelAttributes);
+
             $this->saveModelAndRelations();
 
             return $this->model;
@@ -74,12 +76,11 @@ Trait AddsCrudMethodsToModel
                     ? $requestRelation['id']
                     : null;
 
-                if (!$relationId) {
-                    throw new \Exception('Missing id in relation [' . $crudRelation->getRelationName() . ']');
+                if ($relationId) {
+                    $crudRelation->getRelation()->getRelated()->findOrFail($relationId);
                 }
 
-                $crudRelation->getRelation()->getRelated()->findOrFail($relationId);
-                $this->model->{$crudRelation->getRelation()->getForeignKey()} = $relationId;
+                $this->model->{$crudRelation->getRelation()->getForeignKeyName()} = $relationId;
             });
     }
 
@@ -117,7 +118,7 @@ Trait AddsCrudMethodsToModel
             : null;
 
         if (!$relationId) {
-            throw new \Exception('Missing id in relation [' . $crudRelation->getRelationName() . ']');
+            return;
         }
 
         $relatedModel = $crudRelation->getRelation()->getRelated()->findOrFail($relationId);
