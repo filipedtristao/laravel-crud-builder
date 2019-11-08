@@ -21,7 +21,7 @@ class InvalidRelationException extends InvalidRequestException
         $unknownRelations = $this->unknownRelations->implode(', ');
         $allowedRelations = $this->allowedRelations->implode(', ');
 
-        $message = "Requested attributes(s) `{$unknownRelations}` are not allowed. Allowed relations(s) are `{$allowedRelations}`.";
+        $message = "Requested relations(s) `{$unknownRelations}` are not allowed. Allowed relations(s) are `{$allowedRelations}`.";
         parent::__construct(Response::HTTP_BAD_REQUEST, $message);
     }
 
