@@ -15,7 +15,7 @@ trait AddsIgnoreAttributesToModel
 
     public function ignoreAttributes($attributes): self
     {
-        if ($this->ignoreAttributes instanceof Collection) {
+        if ($this->allowedAttributes instanceof Collection) {
             throw MethodCallException::mustBeCalledBefore('ignoreAttributes', 'allowedAttributes');
         }
 
