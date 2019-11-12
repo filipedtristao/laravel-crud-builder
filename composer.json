@@ -1,5 +1,7 @@
 {
     "name": "filipedtristao/laravel-crud-builder",
+    "homepage": "https://github.com/filipedtristao/laravel-crud-builder",
+    "license": "MIT",
     "authors": [
         {
             "name": "Filipe Tristão",
