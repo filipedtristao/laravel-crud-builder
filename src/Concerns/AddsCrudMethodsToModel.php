@@ -66,6 +66,7 @@ Trait AddsCrudMethodsToModel
 
         $this
             ->allowedRelations
+            ->only($this->getRequestRelationKeys())
             ->filter(function (CrudRelation $crudRelation) {
                 return $crudRelation->getRelation() instanceof BelongsTo;
             })
@@ -92,6 +93,7 @@ Trait AddsCrudMethodsToModel
 
         $this
             ->allowedRelations
+            ->only($this->getRequestRelationKeys())
             ->filter(function (CrudRelation $crudRelation) {
                 return !($crudRelation->getRelation() instanceof BelongsTo);
             })
@@ -102,6 +104,7 @@ Trait AddsCrudMethodsToModel
                 if ($crudRelation->getRelation() instanceof HasOne) {
                     $this->syncRelatedRelation($crudRelation, $requestRelation);
                 } else if ($crudRelation->getRelation() instanceof HasMany) {
+
                     foreach ($requestRelation as $relation) {
                         $this->syncRelatedRelation($crudRelation, $relation);
                     }
@@ -136,5 +139,16 @@ Trait AddsCrudMethodsToModel
     protected function getRequestRelation(string $relationName)
     {
         return $this->request->input('data.relationships.' . $relationName . '.data');
+    }
+
+    protected function getRequestRelationKeys()
+    {
+        $relations = $this->request->input('data.relationships');
+
+        if ($relations) {
+            return array_keys($relations);
+        } else {
+            return [];
+        }
     }
 }
