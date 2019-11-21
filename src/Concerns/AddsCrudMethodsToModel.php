@@ -81,8 +81,18 @@ Trait AddsCrudMethodsToModel
                     $crudRelation->getRelation()->getRelated()->findOrFail($relationId);
                 }
 
-                $this->model->{$crudRelation->getRelation()->getForeignKeyName()} = $relationId;
+                $foreignKeyName = $this->getForeignKeyName($crudRelation->getRelation());
+                $this->model->{$foreignKeyName} = $relationId;
             });
+    }
+
+    protected function getForeignKeyName($relation)
+    {
+        if (method_exists($relation, 'getForeignKeyName')) {
+            return $relation->getForeignKeyName();
+        } else if (method_exists($relation, 'getForeignKey')) {
+            return $relation->getForeignKey();
+        }
     }
 
     protected function syncRelatedRelations()
