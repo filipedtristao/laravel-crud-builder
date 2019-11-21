@@ -11,6 +11,6 @@ class SingerModel extends Model
 
     public function band()
     {
-        return $this->belongsTo(BandModel::class, 'band_id');
+        return $this->belongsTo(BandModel::class);
     }
 }

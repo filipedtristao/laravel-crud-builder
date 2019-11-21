@@ -43,7 +43,6 @@ class AllowedRelationTest extends TestCase
     /** @test */
     public function it_can_add_many_relations_to_model()
     {
-
         $singer = SingerModel::create([
             'name' => 'Paul McCartney',
             'age' => 77
