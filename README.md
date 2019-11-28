@@ -1,6 +1,8 @@
 # Create and update Eloquent models from API Requests
 This package allows you to create and update your Eloquent model and sync relationships based on a request. Request parameter names follow the [JSON API specification](http://jsonapi.org/) as closely as possible.
 
+<b>Note:</b> Inspired in [Spatie's query builder package](https://github.com/spatie/laravel-query-builder).
+
 ## Basic usage
 
 ### Create a model based on a Request: 
