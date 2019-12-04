@@ -32,7 +32,7 @@ trait AddsDefaultAttributesToModel
     {
         $this->defaultAttributes
             ->each(function ($attribute, $index) {
-                $this->model{$index} = $attribute;
+                $this->model->{$index} = $attribute;
             });
     }
 }
