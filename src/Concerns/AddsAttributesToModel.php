@@ -70,9 +70,9 @@ trait AddsAttributesToModel
                 $transform = $this->attributeTransformers->get($index);
 
                 if ($transform) {
-                    $this->model{$index} = $transform($attribute);
+                    $this->model->{$index} = $transform($attribute);
                 } else {
-                    $this->model{$index} = $attribute;
+                    $this->model->{$index} = $attribute;
                 }
             });
     }
