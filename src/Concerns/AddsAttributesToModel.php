@@ -2,6 +2,7 @@
 
 namespace CrudBuilder\Concerns;
 
+use Closure;
 use CrudBuilder\Exceptions\InvalidAttributeException;
 use Illuminate\Support\Collection;
 
@@ -40,7 +41,7 @@ trait AddsAttributesToModel
 
     protected function prependAttribute($index, $attribute): string
     {
-        if (is_callable($attribute)) {
+        if ($attribute instanceof Closure) {
             return $index;
         }
 
