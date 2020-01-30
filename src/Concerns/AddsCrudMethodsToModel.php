@@ -4,13 +4,21 @@ namespace CrudBuilder\Concerns;
 
 use CrudBuilder\CrudRelation;
 use CrudBuilder\Exceptions\MissingIdException;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 Trait AddsCrudMethodsToModel
 {
+
+    public function createOrUpdate(): Model
+    {
+        return $this->save();
+    }
 
     public function save(): Model
     {
@@ -23,10 +31,9 @@ Trait AddsCrudMethodsToModel
         return $this->create();
     }
 
-    public function create(): Model
+    protected function getRequestId()
     {
-        $this->saveModelAndRelations();
-        return $this->model;
+        return $this->request->input('data.id');
     }
 
     public function update(): Model
@@ -46,11 +53,6 @@ Trait AddsCrudMethodsToModel
         throw new MissingIdException();
     }
 
-    public function createOrUpdate(): Model
-    {
-        return $this->save();
-    }
-
     protected function saveModelAndRelations()
     {
         $this->syncLocalRelations();
@@ -60,7 +62,7 @@ Trait AddsCrudMethodsToModel
 
     protected function syncLocalRelations()
     {
-        if (!$this->allowedRelations){
+        if (!$this->allowedRelations) {
             return;
         }
 
@@ -86,6 +88,22 @@ Trait AddsCrudMethodsToModel
             });
     }
 
+    protected function getRequestRelationKeys()
+    {
+        $relations = $this->request->input('data.relationships');
+
+        if ($relations) {
+            return array_keys($relations);
+        } else {
+            return [];
+        }
+    }
+
+    protected function getRequestRelation(string $relationName)
+    {
+        return $this->request->input('data.relationships.' . $relationName . '.data');
+    }
+
     protected function getForeignKeyName($relation)
     {
         if (method_exists($relation, 'getForeignKeyName')) {
@@ -97,7 +115,7 @@ Trait AddsCrudMethodsToModel
 
     protected function syncRelatedRelations()
     {
-        if (!$this->allowedRelations){
+        if (!$this->allowedRelations) {
             return;
         }
 
@@ -111,15 +129,15 @@ Trait AddsCrudMethodsToModel
 
                 $requestRelation = $this->getRequestRelation($crudRelation->getRelationName());
 
-                if ($crudRelation->getRelation() instanceof HasOne) {
+                if ($crudRelation->getRelation() instanceof HasOne || $crudRelation->getRelation() instanceof MorphOne) {
                     $this->syncRelatedRelation($crudRelation, $requestRelation);
-                } else if ($crudRelation->getRelation() instanceof HasMany) {
+                } else if ($crudRelation->getRelation() instanceof HasMany || $crudRelation->getRelation() instanceof MorphMany) {
 
                     foreach ($requestRelation as $relation) {
                         $this->syncRelatedRelation($crudRelation, $relation);
                     }
                 } else {
-                    throw new \Exception('Relation type [' . get_class($crudRelation->getRelation()) . '] not suported');
+                    throw new Exception('Relation type [' . get_class($crudRelation->getRelation()) . '] not suported');
                 }
             });
     }
@@ -136,29 +154,23 @@ Trait AddsCrudMethodsToModel
 
         $relatedModel = $crudRelation->getRelation()->getRelated()->findOrFail($relationId);
 
-        $relatedModel->update([
+        $updateData = [
             $crudRelation->getRelation()->getForeignKeyName() => $this->model->id
-        ]);
-    }
+        ];
 
-    protected function getRequestId()
-    {
-        return $this->request->input('data.id');
-    }
-
-    protected function getRequestRelation(string $relationName)
-    {
-        return $this->request->input('data.relationships.' . $relationName . '.data');
-    }
-
-    protected function getRequestRelationKeys()
-    {
-        $relations = $this->request->input('data.relationships');
-
-        if ($relations) {
-            return array_keys($relations);
-        } else {
-            return [];
+        if ($crudRelation->getRelation() instanceof MorphOne || $crudRelation->getRelation() instanceof MorphMany) {
+            $updateData = [
+                $crudRelation->getRelation()->getForeignKeyName() => $this->model->id,
+                $crudRelation->getRelation()->getMorphType() => get_class($this->model)
+            ];
         }
+
+        $relatedModel->update($updateData);
+    }
+
+    public function create(): Model
+    {
+        $this->saveModelAndRelations();
+        return $this->model;
     }
 }
