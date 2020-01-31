@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Support\Collection;
 
 Trait AddsCrudMethodsToModel
 {
@@ -148,6 +149,10 @@ Trait AddsCrudMethodsToModel
             ? $requestRelation['id']
             : null;
 
+        if ($crudRelation->getRelation() instanceof MorphOne || $crudRelation->getRelation() instanceof MorphMany) {
+            $this->detachCurrentMorphedRelations($crudRelation, $relationId);
+        }
+
         if (!$relationId) {
             return;
         }
@@ -166,6 +171,31 @@ Trait AddsCrudMethodsToModel
         }
 
         $relatedModel->update($updateData);
+    }
+
+    protected function detachCurrentMorphedRelations(CrudRelation $crudRelation, $relationId)
+    {
+        $currentRelated = $this->model->{$crudRelation->getRelationName()};
+
+        if ($currentRelated) {
+            if ($currentRelated instanceof Collection) {
+                foreach ($currentRelated as $related) {
+                    $this->detachCurrentMorphedRelation($crudRelation, $related);
+                }
+            } else {
+                if ($relationId != $currentRelated->{$currentRelated->getKeyName()}) {
+                    $this->detachCurrentMorphedRelation($crudRelation, $currentRelated);
+                }
+            }
+        }
+    }
+
+    protected function detachCurrentMorphedRelation(CrudRelation $crudRelation, Model $related)
+    {
+        $related->update([
+            $crudRelation->getRelation()->getForeignKeyName() => null,
+            $crudRelation->getRelation()->getMorphType() => null
+        ]);
     }
 
     public function create(): Model
