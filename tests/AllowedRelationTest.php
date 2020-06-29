@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 
 class AllowedRelationTest extends TestCase
 {
-
     /** @test */
     public function it_can_add_single_relation_to_model()
     {

@@ -14,7 +14,6 @@ use Illuminate\Http\Request;
 
 class CrudBuilder
 {
-
     use AddsAttributesToModel,
         AddsDefaultAttributesToModel,
         AddsIgnoreAttributesToModel,

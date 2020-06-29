@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 
 class IgnoreAttributeTest extends TestCase
 {
-
     /** @test */
     public function it_can_ignore_attribute_in_model()
     {

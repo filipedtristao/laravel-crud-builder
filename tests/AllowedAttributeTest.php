@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 
 class AllowedAttributeTest extends TestCase
 {
-
     /** @test */
     public function it_can_add_attribute_in_model()
     {
