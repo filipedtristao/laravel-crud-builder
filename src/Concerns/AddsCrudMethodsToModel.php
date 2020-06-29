@@ -12,10 +12,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Collection;
+use function array_key_exists;
 
-Trait AddsCrudMethodsToModel
+trait AddsCrudMethodsToModel
 {
-
     public function createOrUpdate(): Model
     {
         return $this->save();
@@ -42,9 +42,23 @@ Trait AddsCrudMethodsToModel
         $id = $this->getRequestId();
 
         if ($id) {
-            $modelAttributes = $this->model->getAttributes();
+            $modelNewAttributes = collect($this->model->getAttributes());
             $this->model = $this->model->query()->find($id);
-            $this->model->fill($modelAttributes);
+            $modelOldAttributes = collect($this->model->getAttributes());
+
+            foreach ($modelNewAttributes as $attributeName => $newAttributeValue) {
+                $oldAttribute = $modelOldAttributes->get($attributeName);
+
+                if (
+                    $oldAttribute !== null
+                    && $oldAttribute !== ''
+                    && $this->appliedDefaultAttributes->get($attributeName)
+                ) {
+                    continue;
+                }
+
+                $this->model->setAttribute($attributeName, $newAttributeValue);
+            }
 
             $this->saveModelAndRelations();
 

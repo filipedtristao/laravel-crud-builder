@@ -8,37 +8,36 @@ use Illuminate\Http\Request;
 
 class DefaultAttributeTest extends TestCase
 {
-
     /** @test */
     public function it_can_add_default_attribute_in_model()
     {
-        $builder = $this->createBuilderFromAttributeRequest([])
+        $model = $this->createBuilderFromAttributeRequest([])
             ->defaultAttributes([
                 'name' => 'John'
-            ]);
+            ])
+            ->create();
 
-        $model = $builder->getModel();
         $this->assertEquals($model->name, 'John');
     }
 
     /** @test */
     public function it_can_add_multiple_default_attributes_in_model()
     {
-        $builder = $this->createBuilderFromAttributeRequest([])
+        $model = $this->createBuilderFromAttributeRequest([])
             ->defaultAttributes([
                 'name' => 'John',
                 'age' => 40
-            ]);
+            ])
+            ->create();
 
-        $model = $builder->getModel();
         $this->assertEquals($model->name, 'John');
         $this->assertEquals($model->age, 40);
     }
 
     /** @test */
-    public function it_allowed_atributes_overrides_default_attributes()
+    public function it_allowed_atributes_overrides_default_attributes_on_create()
     {
-        $builder = $this
+        $model = $this
             ->createBuilderFromAttributeRequest([
                 'name' => 'Paul',
                 'age' => 77
@@ -47,17 +46,41 @@ class DefaultAttributeTest extends TestCase
                 'name' => 'John',
                 'age' => 40
             ])
-            ->allowedAttributes('name', 'age');
+            ->allowedAttributes('name', 'age')
+            ->create();
 
-        $model = $builder->getModel();
         $this->assertEquals($model->name, 'Paul');
         $this->assertEquals($model->age, 77);
     }
 
-    protected function createBuilderFromAttributeRequest(array $attributes): CrudBuilder
+    /** @test */
+    public function it_allowed_atributes_overrides_default_attributes_on_update()
+    {
+        $singer = SingerModel::create([
+            'name' => 'Ringo'
+        ]);
+
+        $model = $this
+            ->createBuilderFromAttributeRequest([
+                'age' => '79',
+            ], $singer->id)
+            ->defaultAttributes([
+                'name' => 'John',
+                'age' => 40
+            ])
+            ->allowedAttributes('name', 'age')
+            ->update();
+
+        $this->assertEquals($model->id, $singer->id);
+        $this->assertEquals($model->name, 'Ringo');
+        $this->assertEquals($model->age, 79);
+    }
+
+    protected function createBuilderFromAttributeRequest(array $attributes, $id = null): CrudBuilder
     {
         $request = new Request([
             'data' => [
+                'id' => $id,
                 'attributes' => $attributes
             ]
         ]);

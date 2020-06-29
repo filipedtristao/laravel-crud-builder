@@ -4,15 +4,12 @@ namespace CrudBuilder\Concerns;
 
 use CrudBuilder\Exceptions\MethodCallException;
 use Illuminate\Support\Collection;
+use function collect;
 
 trait AddsDefaultAttributesToModel
 {
-
-    /**
-     * @var Collection
-     */
     protected $defaultAttributes;
-
+    protected $appliedDefaultAttributes;
 
     public function defaultAttributes($attributes): self
     {
@@ -30,9 +27,12 @@ trait AddsDefaultAttributesToModel
 
     protected function addDefaultAttributesToModel()
     {
+        $this->appliedDefaultAttributes = collect();
+
         $this->defaultAttributes
             ->each(function ($attribute, $index) {
                 $this->model->{$index} = $attribute;
+                $this->appliedDefaultAttributes->offsetSet($index, $attribute);
             });
     }
 }

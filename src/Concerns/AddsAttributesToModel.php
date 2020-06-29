@@ -33,6 +33,8 @@ trait AddsAttributesToModel
                 return is_callable($attribute);
             });
 
+        $this->appliedDefaultAttributes = $this->appliedDefaultAttributes ?? collect();
+
         $this->ensureAllAttributesExist();
         $this->addRequestedAttributesToModel();
 
@@ -75,6 +77,8 @@ trait AddsAttributesToModel
                 } else {
                     $this->model->{$index} = $attribute;
                 }
+
+                $this->appliedDefaultAttributes->offsetUnset($index);
             });
     }
 
